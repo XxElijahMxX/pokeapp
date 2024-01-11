@@ -1,9 +1,15 @@
-import React, { createContext, useContext, useEffect, useReducer } from "react"
+import React, { createContext, useContext, useEffect, useReducer, useState } from "react"
 
 const GlobalContext = createContext();
 
 //actions
 const LOADING = 'LOADING';
+const getPKM = 'getPKM';
+const getAllPKM = 'getAllPKM';
+const getAllPKMdata = 'getAllPKMdata';
+const getSearch = 'getSearch';
+const getPKMDB = 'getPKMDB';
+const NEXT = 'NEXT';
 
 //reducers
 const reducer = (state, action) => {
@@ -11,6 +17,9 @@ const reducer = (state, action) => {
     switch (action.type) {
         case LOADING:
             return {...state, loading: true}
+
+            case getAllPKM:
+                return { ...state, allPKM: action.payload, loading: false };
     }
    return state; 
 }
@@ -32,12 +41,25 @@ export const GlobalProvider = ({ children }) => {
     };
 
     const [state, dispatch] = useReducer(reducer, initialState);
+    const [allPokeData, setAllPokeData] = useState([]);
 
     const allPKM = async () => {
         dispatch({ type: 'LOADING'})
-        const res = await fetch (`${baseUrl}pokemon?limit=151`);
+        const res = await fetch (`${baseUrl}pokemon?limit=20`);
         const data = await res.json();
-        console.log(data);
+        dispatch({ type: 'getAllPKM', payload: data.results });
+
+        // fetch pokemon data
+        const allPokeData = [];
+
+        for (const pokemon of data.results) {
+            console.log(pokemon);
+            const pokemonResults = await fetch(pokemon.url);
+            const pokeData = await pokemonResults.json();
+            allPokeData.push(pokeData)
+        }
+
+        setAllPokeData(allPokeData);
     };
 
     useEffect(() => {
@@ -47,6 +69,7 @@ export const GlobalProvider = ({ children }) => {
     return (
         <GlobalContext.Provider value={{
             ...state,
+            allPokeData,
         }}>
             {children}
         </GlobalContext.Provider>
