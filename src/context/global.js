@@ -18,8 +18,12 @@ const reducer = (state, action) => {
         case LOADING:
             return {...state, loading: true}
 
-            case getAllPKM:
-                return { ...state, allPKM: action.payload, loading: false };
+        case getAllPKM:
+            return { ...state, allPKM: action.payload, loading: false };
+
+        case getPKM:
+            
+        return { ...state, pokemon: action.payload, loading: false };
     }
    return state; 
 }
@@ -62,6 +66,20 @@ export const GlobalProvider = ({ children }) => {
         setAllPokeData(allPokeData);
     };
 
+
+    //get individual pokemon
+    const getPokemon = async (name) => {
+        dispatch({ type: "LOADING" });
+
+        // this fetches the base url and adds the paramater /pokemon and adding the pokemon name
+        const res = await fetch(`${baseUrl}pokemon/${name}`);
+        //converts data into JSON
+        const data = await res.json();
+
+        dispatch({ type: "getPKM", payload: data });
+    }
+
+
     useEffect(() => {
         allPKM();
     }, []);
@@ -70,6 +88,7 @@ export const GlobalProvider = ({ children }) => {
         <GlobalContext.Provider value={{
             ...state,
             allPokeData,
+            getPokemon,
         }}>
             {children}
         </GlobalContext.Provider>

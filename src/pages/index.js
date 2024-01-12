@@ -1,3 +1,4 @@
+import Router from "next/router";
 import { useGlobalContext } from "../context/global";
 
 export default function Home() {
@@ -7,7 +8,9 @@ export default function Home() {
     <div className="all-pokemon">
       {allPokeData ? allPokeData.map((pokemon) => {
         return (
-        <div key={pokemon.id} className="pokemon-card">
+        <div key={pokemon.id} className="pokemon-card" onClick={() => {
+          Router.push(`/pokemon/${pokemon.name}`)
+        }}>
           <div className="card-image">
             <img src={pokemon.sprites.other.home.front_default} alt={pokemon.name} 
             />
